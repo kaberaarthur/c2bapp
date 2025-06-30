@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 require('dotenv').config();
 const fs = require('fs');
+const axios = require('axios');
 
 // Import functions
 const { getAccessToken } = require('../daraja/functions');
 
-const BusinessShortCode = '600980'; // example ShortCode
+const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url.php`;
 const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url.php`;
-
 
 // Health Check
 router.get('/', (req, res) => {
@@ -21,7 +21,7 @@ router.get('/register_url', async (req, res) => {
   try {
     const accessToken = await getAccessToken();
 
-    const url = 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
+    const url = 'https://api.safaricom.co.ke/mpesa/c2b/v2/registerurl';
 
     const payload = {
       ShortCode: BusinessShortCode,
