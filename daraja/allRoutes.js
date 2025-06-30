@@ -5,7 +5,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 // Import functions
-const { getAccessToken, getPhoneFromHash } = require('../daraja/functions');
+const { getAccessToken } = require('../daraja/functions');
 
 const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
@@ -69,30 +69,18 @@ router.post('/validation_url', (req, res) => {
   });
 });
 
-router.post('/confirmation_url', async (req, res) => {
-  const logFile = path.join(__dirname, 'C2bConfirmationData.txt');
-  const errorLogFile = path.join(__dirname, 'C2bErrors.log');
-  const body = { ...req.body }; // make a shallow copy to modify safely
+router.post('/confirmation_url', (req, res) => {
+  const logFile = 'C2bConfirmationData.txt';
+  const mpesaResponse = JSON.stringify(req.body);
 
-  try {
-    if (body.MSISDN) {
-      const decodedPhone = await getPhoneFromHash(body.MSISDN);
-      body.MSISDN = decodedPhone || body.MSISDN; // fallback to original if decoding fails
+  // Save the request body to a log file
+  fs.appendFile(logFile, mpesaResponse + '\n', (err) => {
+    if (err) {
+      console.error('Error writing confirmation data:', err);
     }
+  });
 
-    const updatedBody = JSON.stringify(body);
-
-    fs.appendFile(logFile, updatedBody + '\n', (err) => {
-      if (err) {
-        const errorLine = `${new Date().toISOString()} - Write error: ${err.message}\n`;
-        fs.appendFile(errorLogFile, errorLine, () => {});
-      }
-    });
-  } catch (error) {
-    const errorLine = `${new Date().toISOString()} - Decode error: ${error.message}\n${error.stack}\n\n`;
-    fs.appendFile(errorLogFile, errorLine, () => {});
-  }
-
+  // Send response to Safaricom
   res.json({
     ResultCode: 0,
     ResultDesc: 'Confirmation Received Successfully'
