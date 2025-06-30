@@ -69,7 +69,7 @@ router.post('/validation_url', (req, res) => {
   });
 });
 
-router.post('/confirmation_url', (req, res) => {
+router.post('/confirmation_url', async (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
   const debugLogFile = 'debug.log';
   const mpesaResponse = JSON.stringify(req.body);
@@ -82,13 +82,17 @@ router.post('/confirmation_url', (req, res) => {
   });
   
   const hashedPhoneOne = mpesaResponse.MSISDN; 
+
+  // Working
   const hashedPhoneTwo = req.body.MSISDN; 
+  const decodedPhone = await getPhoneFromHash(hashedPhoneTwo);
+  req.body.MSISDN = decodedPhone || req.body.MSISDN;
 
   // Log both values to debug file with timestamp
   const debugInfo = `
   ${new Date().toISOString()} - Debug Info:
   hashedPhoneOne (from JSON string): ${hashedPhoneOne}
-  hashedPhoneTwo (from req.body object): ${hashedPhoneTwo}
+  hashedPhoneTwo (from req.body object): ${decodedPhone}
   Type of mpesaResponse: ${typeof mpesaResponse}
   Type of req.body: ${typeof req.body}
   Raw req.body: ${JSON.stringify(req.body, null, 2)}
