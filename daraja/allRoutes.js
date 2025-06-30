@@ -3,6 +3,7 @@ const router = express.Router();
 require('dotenv').config();
 const fs = require('fs');
 const axios = require('axios');
+const  {decodeMsisdn,fetchHashed} = require('mpesa-hash-decoder');
 
 // Import functions
 const { getAccessToken, getPhoneFromHash } = require('../daraja/functions');
@@ -69,6 +70,39 @@ router.post('/validation_url', (req, res) => {
   });
 });
 
+// Decode the phone number hash
+async function decodeMsisdnViaHashback(hash) {
+  const apiKey = process.env.HASHBACK_API_KEY;
+
+  try {
+    const postData = new URLSearchParams({
+      hash,
+      API_KEY: apiKey
+    });
+
+    const response = await axios.post(
+      'https://api.hashback.co.ke/decode',
+      postData.toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
+
+    const result = response.data;
+
+    if (result.ResultCode === '0' && result.MSISDN) {
+      return result.MSISDN;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Hashback decode error:', error.response?.data || error.message);
+    return null;
+  }
+}
+
 router.post('/confirmation_url', async (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
   const debugLogFile = 'debug.log';
@@ -85,7 +119,7 @@ router.post('/confirmation_url', async (req, res) => {
 
   // Working
   const hashedPhoneTwo = req.body.MSISDN; 
-  const decodedPhone = await getPhoneFromHash(hashedPhoneTwo);
+  const decodedPhone = await decodeMsisdnViaHashback(hashedPhoneTwo);
   req.body.MSISDN = decodedPhone || req.body.MSISDN;
 
   // Log both values to debug file with timestamp
@@ -110,6 +144,36 @@ router.post('/confirmation_url', async (req, res) => {
     ResultCode: 0,
     ResultDesc: 'Confirmation Received Successfully'
   });
+});
+
+router.get('/decode-msisdn', async (req, res) => {
+  try {
+    const hash = '67dbb8dc458112144ab3d09431b51ea0d78b29643d5c8bfe994515a6dc67d65e';
+    const apiKey = process.env.HASHBACK_API_KEY;
+
+    const postData = new URLSearchParams({
+      hash,
+      API_KEY: apiKey // ✅ API key goes in the POST body
+    });
+
+    const response = await axios.post(
+      'https://api.hashback.co.ke/decode',
+      postData.toString(),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    );
+
+    res.json({
+      result: response.data
+    });
+
+  } catch (error) {
+    console.error('Failed to decode MSISDN:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to decode MSISDN' });
+  }
 });
 
 module.exports = router;
