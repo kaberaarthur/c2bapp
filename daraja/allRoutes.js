@@ -71,6 +71,7 @@ router.post('/validation_url', (req, res) => {
 
 router.post('/confirmation_url', async (req, res) => {
   const logFile = path.join(__dirname, 'C2bConfirmationData.txt');
+  const errorLogFile = path.join(__dirname, 'C2bErrors.log');
   const body = { ...req.body }; // make a shallow copy to modify safely
 
   try {
@@ -83,11 +84,13 @@ router.post('/confirmation_url', async (req, res) => {
 
     fs.appendFile(logFile, updatedBody + '\n', (err) => {
       if (err) {
-        console.error('Error writing confirmation data:', err);
+        const errorLine = `${new Date().toISOString()} - Write error: ${err.message}\n`;
+        fs.appendFile(errorLogFile, errorLine, () => {});
       }
     });
   } catch (error) {
-    console.error('Error decoding MSISDN:', error);
+    const errorLine = `${new Date().toISOString()} - Decode error: ${error.message}\n${error.stack}\n\n`;
+    fs.appendFile(errorLogFile, errorLine, () => {});
   }
 
   res.json({
