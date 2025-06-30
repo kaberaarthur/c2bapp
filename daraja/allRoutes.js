@@ -172,7 +172,7 @@ router.get('/decode-msisdn', async (req, res) => {
 
   } catch (error) {
     console.error('Failed to decode MSISDN:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to decode MSISDN' });
+    res.status(500).json({ error: error.message || 'Failed to decode MSISDN' });
   }
 });
 
