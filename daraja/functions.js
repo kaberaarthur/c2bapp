@@ -1,5 +1,7 @@
 const axios = require('axios');
 const base64 = require('base-64');
+const fs = require('fs');
+const path = require('path');
 
 // Decode C2B Hash (Phone Number)
 async function getPhoneFromHash(hashValue) {
@@ -50,7 +52,40 @@ async function getAccessToken() {
     }
 }
 
+async function checkTransactionStatus(transaction_code, customer_id) {
+  try {
+    const url = 'http://localhost:8000/transaction-status';
+    const body = {
+      transaction_code,
+      customer_id
+    };
+
+    const response = await axios.post(url, body, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('✅ Response:', response.data);
+  } catch (error) {
+    const errorMessage = `${new Date().toISOString()} - Error checking transaction status:\n${
+      error.response?.data ? JSON.stringify(error.response.data) : error.message
+    }\n\n`;
+
+    // Append to debug.log
+    fs.appendFile(path.join(__dirname, 'debug.log'), errorMessage, (err) => {
+      if (err) {
+        console.error('❌ Failed to write to debug.log:', err.message);
+      }
+    });
+
+    console.error('❌ Error:', error.response?.data || error.message);
+  }
+}
+
+
 module.exports = {
     getAccessToken,
-    getPhoneFromHash
+    getPhoneFromHash,
+    checkTransactionStatus
 };

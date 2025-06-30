@@ -6,7 +6,7 @@ const axios = require('axios');
 const  {decodeMsisdn,fetchHashed} = require('mpesa-hash-decoder');
 
 // Import functions
-const { getAccessToken, getPhoneFromHash } = require('../daraja/functions');
+const { getAccessToken, getPhoneFromHash, checkTransactionStatus } = require('../daraja/functions');
 
 const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
@@ -138,6 +138,9 @@ router.post('/confirmation_url', async (req, res) => {
       console.error('Error writing debug data:', err);
     }
   });
+
+  // Initiate a transaction to Extend the Customer's Subscription
+  transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
 
   // Send response to Safaricom
   res.json({
