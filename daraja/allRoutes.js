@@ -1,0 +1,90 @@
+const express = require('express');
+const router = express.Router();
+require('dotenv').config();
+const fs = require('fs');
+
+// Import functions
+const { getAccessToken } = require('../daraja/functions');
+
+const BusinessShortCode = '600980'; // example ShortCode
+const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url.php`;
+const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url.php`;
+
+
+// Health Check
+router.get('/', (req, res) => {
+  res.json({ message: 'Hello from the simple GET route!' });
+});
+
+// Action Routes
+router.get('/register_url', async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+
+    const url = 'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl';
+
+    const payload = {
+      ShortCode: BusinessShortCode,
+      ResponseType: 'Completed',
+      ConfirmationURL: confirmationUrl,
+      ValidationURL: validationUrl
+    };
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    res.json({
+      message: 'C2B Register URL Success',
+      response: response.data
+    });
+  } catch (error) {
+    console.error('Registration failed:', error.response?.data || error.message);
+    res.status(500).json({
+      message: 'C2B Register URL Failed',
+      error: error.response?.data || error.message
+    });
+  }
+});
+
+// Validation URL route
+router.post('/validation_url', (req, res) => {
+  const logFile = 'C2bValidationData.txt';
+  const mpesaResponse = JSON.stringify(req.body);
+
+  // Log raw request to file
+  fs.appendFile(logFile, mpesaResponse + '\n', (err) => {
+    if (err) {
+      console.error('Error writing to log file:', err);
+    }
+  });
+
+  // Respond to M-Pesa
+  res.json({
+    ResultCode: 0,
+    ResultDesc: 'Confirmation Received Successfully'
+  });
+});
+
+router.post('/confirmation_url', (req, res) => {
+  const logFile = 'C2bConfirmationData.txt';
+  const mpesaResponse = JSON.stringify(req.body);
+
+  // Save the request body to a log file
+  fs.appendFile(logFile, mpesaResponse + '\n', (err) => {
+    if (err) {
+      console.error('Error writing confirmation data:', err);
+    }
+  });
+
+  // Send response to Safaricom
+  res.json({
+    ResultCode: 0,
+    ResultDesc: 'Confirmation Received Successfully'
+  });
+});
+
+module.exports = router;
