@@ -1,6 +1,18 @@
 const axios = require('axios');
 const base64 = require('base-64');
 
+// Decode C2B Hash (Phone Number)
+async function getPhoneFromHash(hashValue) {
+    try {
+        const result = await decodeMsisdn(hashValue);
+        return result.phone; // return only the phone number
+    } catch (error) {
+        console.error("Failed to decode MSISDN:", error);
+        return null;
+    }
+}
+
+
 // YOU MPESA API KEYS
 const consumerKey = process.env.CONSUMER_KEY;
 const consumerSecret = process.env.CONSUMER_SECRET;
@@ -39,5 +51,6 @@ async function getAccessToken() {
 }
 
 module.exports = {
-    getAccessToken
+    getAccessToken,
+    getPhoneFromHash
 };
