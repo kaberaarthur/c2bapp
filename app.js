@@ -4,7 +4,7 @@ const app = express();
 const port = process.env.PORT || 3002; // Use port from environment variable
 
 app.get('/', (req, res) => {
-  res.send('Hello from your Node.js app! This is the homepage.');
+  res.send('Hello, https is working!');
 });
 
 // You can add more routes here
