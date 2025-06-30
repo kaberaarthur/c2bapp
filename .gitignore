@@ -27,3 +27,6 @@
 # Operating System generated files
 .DS_Store
 Thumbs.db
+
+C2bConfirmationData.txt
+C2bValidationData.txt

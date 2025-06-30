@@ -15,6 +15,8 @@ app.get('/about', (req, res) => {
     res.send('This is the about page.');
 });
 
+app.use(express.json());
+
 // Use the user management routes
 app.use('/daraja', darajaRoutes);
 
