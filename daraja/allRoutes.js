@@ -8,8 +8,8 @@ const axios = require('axios');
 const { getAccessToken } = require('../daraja/functions');
 
 const BusinessShortCode = '4150219';
-const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url.php`;
-const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url.php`;
+const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
+const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url`;
 
 // Health Check
 router.get('/', (req, res) => {
