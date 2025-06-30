@@ -5,7 +5,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 // Import functions
-const { getAccessToken } = require('../daraja/functions');
+const { getAccessToken, getPhoneFromHash } = require('../daraja/functions');
 
 const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
@@ -71,12 +71,33 @@ router.post('/validation_url', (req, res) => {
 
 router.post('/confirmation_url', (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
+  const debugLogFile = 'debug.log';
   const mpesaResponse = JSON.stringify(req.body);
 
   // Save the request body to a log file
   fs.appendFile(logFile, mpesaResponse + '\n', (err) => {
     if (err) {
       console.error('Error writing confirmation data:', err);
+    }
+  });
+  
+  const hashedPhoneOne = mpesaResponse.MSISDN; 
+  const hashedPhoneTwo = req.body.MSISDN; 
+
+  // Log both values to debug file with timestamp
+  const debugInfo = `
+  ${new Date().toISOString()} - Debug Info:
+  hashedPhoneOne (from JSON string): ${hashedPhoneOne}
+  hashedPhoneTwo (from req.body object): ${hashedPhoneTwo}
+  Type of mpesaResponse: ${typeof mpesaResponse}
+  Type of req.body: ${typeof req.body}
+  Raw req.body: ${JSON.stringify(req.body, null, 2)}
+  ---
+  `;
+
+  fs.appendFile(debugLogFile, debugInfo, (err) => {
+    if (err) {
+      console.error('Error writing debug data:', err);
     }
   });
 
