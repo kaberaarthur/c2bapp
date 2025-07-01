@@ -119,14 +119,14 @@ router.post('/confirmation_url', async (req, res) => {
 
   // Working
   const hashedPhoneTwo = req.body.MSISDN; 
-  const decodedPhone = await decodeMsisdnViaHashback(hashedPhoneTwo);
+  // const decodedPhone = await decodeMsisdnViaHashback(hashedPhoneTwo);
   req.body.MSISDN = decodedPhone || req.body.MSISDN;
 
   // Log both values to debug file with timestamp
   const debugInfo = `
   ${new Date().toISOString()} - Debug Info:
   hashedPhoneOne (from JSON string): ${hashedPhoneOne}
-  hashedPhoneTwo (from req.body object): ${decodedPhone}
+  hashedPhoneTwo (from req.body object): ${hashedPhoneTwo}
   Type of mpesaResponse: ${typeof mpesaResponse}
   Type of req.body: ${typeof req.body}
   Raw req.body: ${JSON.stringify(req.body, null, 2)}
