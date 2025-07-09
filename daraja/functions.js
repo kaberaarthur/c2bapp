@@ -83,9 +83,62 @@ async function checkTransactionStatus(transaction_code, customer_id) {
   }
 }
 
+const saveMpesaTransaction = async (mpesaResponse) => {
+  try {
+    const {
+      TransactionType,
+      TransID,
+      TransTime,
+      TransAmount,
+      BusinessShortCode,
+      BillRefNumber,
+      InvoiceNumber,
+      OrgAccountBalance,
+      ThirdPartyTransID,
+      MSISDN,
+      FirstName,
+    } = mpesaResponse;
+
+    const [result] = await db.execute(
+      `INSERT INTO all_mpesa_transactions (
+        transaction_type,
+        trans_id,
+        trans_time,
+        trans_amount,
+        business_shortcode,
+        bill_ref_number,
+        invoice_number,
+        org_account_balance,
+        third_party_trans_id,
+        msisdn,
+        first_name
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        TransactionType,
+        TransID,
+        TransTime,
+        TransAmount,
+        BusinessShortCode,
+        BillRefNumber,
+        InvoiceNumber,
+        OrgAccountBalance,
+        ThirdPartyTransID,
+        MSISDN,
+        FirstName,
+      ]
+    );
+
+    return { success: true, insertId: result.insertId };
+  } catch (error) {
+    console.error('Error saving MPESA transaction:', error);
+    return { success: false, error };
+  }
+};
+
 
 module.exports = {
     getAccessToken,
     getPhoneFromHash,
-    checkTransactionStatus
+    checkTransactionStatus,
+    saveMpesaTransaction
 };

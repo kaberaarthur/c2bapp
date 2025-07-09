@@ -6,7 +6,7 @@ const axios = require('axios');
 const  {decodeMsisdn,fetchHashed} = require('mpesa-hash-decoder');
 
 // Import functions
-const { getAccessToken, getPhoneFromHash, checkTransactionStatus } = require('../daraja/functions');
+const { getAccessToken, getPhoneFromHash, checkTransactionStatus, saveMpesaTransaction } = require('../daraja/functions');
 
 const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
@@ -107,6 +107,8 @@ router.post('/confirmation_url', async (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
   const debugLogFile = 'debug.log';
   const mpesaResponse = JSON.stringify(req.body);
+
+  saveMpesaTransaction(mpesaResponse);
 
   // Save the request body to a log file
   fs.appendFile(logFile, mpesaResponse + '\n', (err) => {
