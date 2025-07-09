@@ -103,6 +103,16 @@ async function decodeMsisdnViaHashback(hash) {
   }
 }
 
+router.post('/all-transactions', async(req, res) => {
+  const mpesaResponse = req.body;
+  saveMpesaTransaction(mpesaResponse);
+
+  res.json({
+    ResultCode: 0,
+    ResultDesc: 'Confirmation Received Successfully'
+  });
+})
+
 router.post('/confirmation_url', async (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
   const debugLogFile = 'debug.log';

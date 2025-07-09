@@ -2,6 +2,7 @@ const axios = require('axios');
 const base64 = require('base-64');
 const fs = require('fs');
 const path = require('path');
+const db = require('../dbPromise');
 
 // Decode C2B Hash (Phone Number)
 async function getPhoneFromHash(hashValue) {
@@ -99,6 +100,21 @@ const saveMpesaTransaction = async (mpesaResponse) => {
       FirstName,
     } = mpesaResponse;
 
+    // Convert undefined values to null (more explicit approach)
+    const values = [
+      TransactionType === undefined ? null : TransactionType,
+      TransID === undefined ? null : TransID,
+      TransTime === undefined ? null : TransTime,
+      TransAmount === undefined ? null : TransAmount,
+      BusinessShortCode === undefined ? null : BusinessShortCode,
+      BillRefNumber === undefined ? null : BillRefNumber,
+      InvoiceNumber === undefined ? null : InvoiceNumber,
+      OrgAccountBalance === undefined ? null : OrgAccountBalance,
+      ThirdPartyTransID === undefined ? null : ThirdPartyTransID,
+      MSISDN === undefined ? null : MSISDN,
+      FirstName === undefined ? null : FirstName,
+    ];
+
     const [result] = await db.execute(
       `INSERT INTO all_mpesa_transactions (
         transaction_type,
@@ -113,19 +129,7 @@ const saveMpesaTransaction = async (mpesaResponse) => {
         msisdn,
         first_name
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        TransactionType,
-        TransID,
-        TransTime,
-        TransAmount,
-        BusinessShortCode,
-        BillRefNumber,
-        InvoiceNumber,
-        OrgAccountBalance,
-        ThirdPartyTransID,
-        MSISDN,
-        FirstName,
-      ]
+      values
     );
 
     return { success: true, insertId: result.insertId };
