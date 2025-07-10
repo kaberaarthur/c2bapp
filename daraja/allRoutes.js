@@ -12,7 +12,6 @@ const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
 const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url`;
 
-const fs = require('fs');
 const path = require('path');
 
 function logDebug(message) {
