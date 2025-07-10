@@ -169,6 +169,7 @@ router.post('/confirmation_url', async (req, res) => {
 
   // Initiate a transaction to Extend the Customer's Subscription
   let transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
+  
   try {
     transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
     logDebug(`✅ Transaction processed successfully:\n${JSON.stringify(transactionResponse, null, 2)}`);
