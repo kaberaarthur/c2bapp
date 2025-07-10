@@ -152,7 +152,7 @@ router.post('/confirmation_url', async (req, res) => {
 
   // Log both values to debug file with timestamp
   const debugInfo = `
-  ${new Date().toISOString()} * Debug Info:
+  ${new Date().toISOString()} ** Debug Info:
   hashedPhoneOne (from JSON string): ${hashedPhoneOne}
   hashedPhoneTwo (from req.body object): ${hashedPhoneTwo}
   Type of mpesaResponse: ${typeof mpesaResponse}
