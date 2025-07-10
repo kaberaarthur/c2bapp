@@ -12,6 +12,18 @@ const BusinessShortCode = '4150219';
 const confirmationUrl = `${process.env.PROD_BASE_URL}/daraja/confirmation_url`;
 const validationUrl = `${process.env.PROD_BASE_URL}/daraja/validation_url`;
 
+const fs = require('fs');
+const path = require('path');
+
+function logDebug(message) {
+  const logMessage = `${new Date().toISOString()} - ${message}\n`;
+  fs.appendFile('debug.log', logMessage, (err) => {
+    if (err) {
+      console.error(`${new Date().toISOString()} - Failed to write to debug.log:`, err);
+    }
+  });
+}
+
 // Health Check
 router.get('/', (req, res) => {
   res.json({ message: 'Hello from the simple GET route!' });
@@ -103,7 +115,8 @@ async function decodeMsisdnViaHashback(hash) {
   }
 }
 
-
+// Test Endpoint
+/*
 router.post('/all-transactions', async(req, res) => {
   const mpesaResponse = req.body;
   saveMpesaTransaction(mpesaResponse);
@@ -113,12 +126,14 @@ router.post('/all-transactions', async(req, res) => {
     ResultDesc: 'Confirmation Received Successfully'
   });
 })
+*/
 
 router.post('/confirmation_url', async (req, res) => {
   const logFile = 'C2bConfirmationData.txt';
   const debugLogFile = 'debug.log';
   const mpesaResponse = JSON.stringify(req.body);
 
+  // We can see the transaction in All Transactions, so we are sure it is working up to this point
   saveMpesaTransaction(req.body);
 
   // Save the request body to a log file
@@ -153,7 +168,13 @@ router.post('/confirmation_url', async (req, res) => {
   });
 
   // Initiate a transaction to Extend the Customer's Subscription
-  transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
+  let transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
+  try {
+    transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
+    logDebug(`✅ Transaction processed successfully:\n${JSON.stringify(transactionResponse, null, 2)}`);
+  } catch (error) {
+    logDebug(`❌ Error in checkTransactionStatus:\n${error.stack || error.message}`);
+  }
 
   // Send response to Safaricom
   res.json({
