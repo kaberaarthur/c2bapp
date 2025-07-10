@@ -147,6 +147,7 @@ router.post('/confirmation_url', async (req, res) => {
   // Working
   const hashedPhoneTwo = req.body.MSISDN; 
   // const decodedPhone = await decodeMsisdnViaHashback(hashedPhoneTwo);
+  const decodedPhone = null;
   req.body.MSISDN = decodedPhone || req.body.MSISDN;
 
   // Log both values to debug file with timestamp
