@@ -85,6 +85,8 @@ async function checkTransactionStatus(transaction_code, customer_id) {
 }
 
 const saveMpesaTransaction = async (mpesaResponse) => {
+  console.log("Saving MPESA transaction with data:", mpesaResponse);
+
   try {
     const {
       TransactionType,
@@ -131,6 +133,8 @@ const saveMpesaTransaction = async (mpesaResponse) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       values
     );
+
+    console.log("MPESA transaction saved successfully with ID:", result.insertId);
 
     return { success: true, insertId: result.insertId };
   } catch (error) {
