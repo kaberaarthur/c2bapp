@@ -132,6 +132,8 @@ router.post('/confirmation_url', async (req, res) => {
   const debugLogFile = 'debug.log';
   const mpesaResponse = JSON.stringify(req.body);
 
+  console.log("Received Confirmation URL request with body:", mpesaResponse);
+
   // We can see the transaction in All Transactions, so we are sure it is working up to this point
   saveMpesaTransaction(req.body);
 
