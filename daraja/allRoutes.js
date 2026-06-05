@@ -169,11 +169,19 @@ router.post('/confirmation_url', async (req, res) => {
     }
   });
 
+  // Validate BillRefNumber: must be a pure numeric string and <= 30000
+  const billRef = req.body.BillRefNumber;
+  const isNumericOnly = /^\d+$/.test(String(billRef));
+  if (!isNumericOnly || Number(billRef) > 30000) {
+    return res.json({
+      ResultCode: 0,
+      ResultDesc: 'Confirmation Received Successfully'
+    });
+  }
+
   // Initiate a transaction to Extend the Customer's Subscription
-  let transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
-  
   try {
-    transactionResponse = await checkTransactionStatus(req.body.TransID, req.body.BillRefNumber);
+    const transactionResponse = await checkTransactionStatus(req.body.TransID, billRef);
     logDebug(`✅ Transaction processed successfully:\n${JSON.stringify(transactionResponse, null, 2)}`);
   } catch (error) {
     logDebug(`❌ Error in checkTransactionStatus:\n${error.stack || error.message}`);
